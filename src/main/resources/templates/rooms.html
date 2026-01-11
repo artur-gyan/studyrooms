@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Study Rooms</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+        .btn-info {
+            background-color: #2196F3;
+            color: white;
+        }
+        .btn-info:hover {
+            background-color: #0b7dda;
+        }
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .status-active {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .anonymous-notice {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .room-description {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header-actions">
+        <h1>Available Study Rooms</h1>
+        <div>
+            <a href="/" class="btn btn-secondary"> Home</a>
+            <a sec:authorize="hasRole('LIB_STAFF')" href="/rooms/new" class="btn btn-primary">➕ New Room</a>
+        </div>
+    </div>
+
+    <!-- Notice for anonymous users -->
+    <div sec:authorize="!isAuthenticated()" class="anonymous-notice">
+        <strong> Information:</strong> You're viewing basic information about study rooms.
+        To make a booking, you need to
+        <a href="/login" style="color: #2196F3; font-weight: bold;">login</a> or
+        <a href="/register" style="color: #2196F3; font-weight: bold;">register</a>.
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Capacity</th>
+            <th>Operating Hours</th>
+            <th>Status</th>
+            <th sec:authorize="isAuthenticated()">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="room : ${rooms}">
+            <td th:text="${room.id}"></td>
+            <td><strong th:text="${room.name}"></strong></td>
+            <td class="room-description" th:text="${room.description} ?: 'No description'"></td>
+            <td th:text="${room.capacity} + ' people'"></td>
+            <td>
+                <span th:text="${room.openTime}"></span> -
+                <span th:text="${room.closeTime}"></span>
+            </td>
+            <td>
+                <span th:if="${room.active}" class="status-active">✓ Active</span>
+                <span th:unless="${room.active}" class="status-inactive">✗ Inactive</span>
+            </td>
+            <td sec:authorize="isAuthenticated()">
+                <!-- Only students can book -->
+                <a sec:authorize="hasRole('STUDENT')"
+                   th:if="${room.active}"
+                   th:href="@{'/bookings/new'(roomId=${room.id})}"
+                   class="btn btn-info">
+                     Book
+                </a>
+                <span sec:authorize="hasRole('STUDENT')"
+                      th:unless="${room.active}"
+                      style="color: #999;">
+                            Unavailable
+                        </span>
+                <!-- Staff sees different buttons -->
+                <span sec:authorize="hasRole('LIB_STAFF')" style="color: #666;">
+                            Staff
+                        </span>
+            </td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(rooms)}">
+            <td colspan="7" style="text-align: center; padding: 30px; color: #999;">
+                No rooms available at this time.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Info section for anonymous users -->
+    <div sec:authorize="!isAuthenticated()" style="margin-top: 30px; padding: 20px; background-color: #e8f5e9; border-radius: 5px;">
+        <h3>How does the system work?</h3>
+        <ul style="line-height: 1.8;">
+            <li> Choose the room you're interested in</li>
+            <li> Make a booking for a specific date and time</li>
+            <li> You can make up to 2 bookings per day</li>
+            <li> Bookings are allowed only on weekdays (Monday-Friday)</li>
+            <li> Operating hours: 08:00 - 20:00</li>
+        </ul>
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/register" class="btn btn-primary" style="font-size: 18px; padding: 15px 30px;">
+                Register Now
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

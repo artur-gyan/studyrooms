@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>StudyRooms - Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .welcome-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-radius: 5px;
+        }
+        .menu-section {
+            margin-top: 30px;
+        }
+        .menu-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .menu-button:hover {
+            background-color: #45a049;
+        }
+        .menu-button.secondary {
+            background-color: #2196F3;
+        }
+        .menu-button.secondary:hover {
+            background-color: #0b7dda;
+        }
+        .logout-form {
+            margin-top: 20px;
+        }
+        .logout-button {
+            background-color: #f44336;
+        }
+        .logout-button:hover {
+            background-color: #da190b;
+        }
+        .guest-section {
+            text-align: center;
+        }
+        .guest-section p {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background-color: #2196F3;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        .role-badge.staff {
+            background-color: #ff9800;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>StudyRooms - Study Room Booking System</h1>
+
+    <!-- Logged In Users -->
+    <div sec:authorize="isAuthenticated()" class="welcome-section">
+        <h2>Welcome, <span sec:authentication="name"></span>!
+            <span sec:authorize="hasRole('STUDENT')" class="role-badge">Student</span>
+            <span sec:authorize="hasRole('LIB_STAFF')" class="role-badge staff">Library Staff</span>
+        </h2>
+    </div>
+
+    <div sec:authorize="isAuthenticated()" class="menu-section">
+        <h3>Menu</h3>
+
+        <a href="/rooms" class="menu-button">
+             Available Study Rooms
+        </a>
+
+        <a href="/bookings" class="menu-button secondary">
+             <span sec:authorize="hasRole('STUDENT')">My Bookings</span>
+            <span sec:authorize="hasRole('LIB_STAFF')">All Bookings</span>
+        </a>
+
+        <div sec:authorize="hasRole('LIB_STAFF')">
+            <a href="/rooms/new" class="menu-button secondary">
+                 Create New Room
+            </a>
+
+            <a href="/stats" class="menu-button secondary" style="background-color: #673ab7;">
+                 View Daily Statistics
+            </a>
+        </div>
+
+        <div class="info-box" sec:authorize="hasRole('STUDENT')">
+            <strong> Reminder:</strong> You can make up to 2 bookings per day,
+            only on weekdays (Mon-Fri), during operating hours 08:00-20:00.
+        </div>
+
+        <form class="logout-form" th:action="@{/logout}" method="post">
+            <button type="submit" class="menu-button logout-button">
+                  Logout
+            </button>
+        </form>
+    </div>
+
+    <!-- Guest Users (Not Logged In) -->
+    <div sec:authorize="!isAuthenticated()" class="guest-section">
+        <p>Welcome to the StudyRooms application!</p>
+        <p>Book study rooms in the library.</p>
+
+        <div class="menu-section">
+            <!-- Browse Rooms button for anonymous users -->
+            <a href="/rooms" class="menu-button">
+                 Browse Available Rooms
+            </a>
+
+            <a href="/login" class="menu-button secondary">
+                 Login
+            </a>
+            <a href="/register" class="menu-button secondary">
+                 Register
+            </a>
+        </div>
+
+        <div class="info-box">
+            <strong> Information:</strong> To book a room, you must first login or register.
+            You can browse available rooms without logging in.
+        </div>
+    </div>
+
+    <!-- H2 Console Link (for development) -->
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+        <p style="font-size: 12px; color: #666;">
+            <a href="/h2-console" target="_blank" style="color: #666;">🔧 H2 Console (Development)</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>
