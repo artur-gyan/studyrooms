@@ -93,3 +93,9 @@ src/main/java/gr/teipir/studyrooms
 ├── security/        # JWT Filter, UserDetails Service
 └── service/         # Business Logic (Booking, Room, Holiday Services)
 ```
+## 🧠 What I Learned
+Developing this distributed system was a major step up in my backend engineering skills. Specifically, I learned how to:
+* Implement **Hybrid Security** using Spring Security 6, combining stateless **JWT** for APIs and standard **Session/Cookies** for the web interface.
+* Consume **External APIs** synchronously using Spring's `RestTemplate` (e.g., checking for national holidays before allowing a booking).
+* Document RESTful endpoints professionally using **OpenAPI / Swagger UI**.
+* Apply strict **Business Rules** at the service layer (e.g., implementing ban penalties for "no-shows" and handling capacity overlaps).
